@@ -1,7 +1,7 @@
 # units
 Calculations with dimensional quantities
 
-Toy implementation for calculation of unitized quantities. Beware, incomplete and not yet thouroughly tested.
+Toy implementation for calculation of unitized quantities. Beware, incomplete and not yet thoroughly tested.
 
 Usage: 
 ```
