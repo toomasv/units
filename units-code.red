@@ -1,4 +1,8 @@
-Red []
+Red [
+	Description: "Toy system of dimensional quantities"
+	Date: 18-April-2020
+	Author: "Toomas Vooglaid"
+]
 
 digit: charset "0123456789"
 sci: [#"e" opt #"-" some digit]
@@ -585,6 +589,7 @@ uctx: context [
 	scale?:  func [obj][obj/scale]
 	dim?:    func [obj][obj/dimension]
 	symbol?: func [obj][obj/symbol]
+	parts?:  func [obj][obj/parts]
 	set 'units func [Units-DSL][do bind Units-DSL self]
 ]
 
