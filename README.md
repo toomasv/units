@@ -113,7 +113,7 @@ Quantities can be converted to different units with `as-unit`, `to-unit`, `re-di
 as-unit EUR PLZ$25                     ; recalculates second argument in terms of unit given as first argument
 ;== 5.482456140350878
 
-form-as/round EUR PLZ$25 .01           ; forms value of second argument in terms of unit given as first argument
+form-as EUR PLZ$25                     ; forms value of second argument in terms of unit given as first argument
 ;== "EUR$5.48"
 
 form-unit re-dimension 1g*mm/s2 1dyn   ; redimensions second argument in units of first argument (and `form-unit` forms it with units)
