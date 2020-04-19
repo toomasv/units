@@ -69,7 +69,7 @@ E.g.:
 
 Quantities can be compared, added, subtracted, multiplied, divided and rised to powers. Comparisons return logic values arithmetic operations return new objects. In following `units []` are implied:
 ```
-USD$1 _< EUR$1
+USD$1 < EUR$1
 ;== true
 
 1km = 1000m
