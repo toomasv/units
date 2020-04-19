@@ -10,7 +10,7 @@ Red []
 base-dimension:   make vector! [0  0  0  0  0  0  0  0  0]
 
 dims: reduce [                                             ;standard unit
-    ;BASIC
+	;BASIC
 	;finance
 	'currency     make vector! [1  0  0  0  0  0  0  0  0] ;USD
 	;physics                                               ;SI
@@ -42,37 +42,37 @@ scales: make map! []
 ;### CURRENCY ###
 ;================
 set-scales/dim [
-	USD: 	#(CAD: 1.4 EUR: 0.91)	;US dollar
-	EUR:	#(PLZ: 4.56 CZK: 27)	;euro
+	USD:    #(CAD: 1.4 EUR: 0.91)   ;US dollar
+	EUR:    #(PLZ: 4.56 CZK: 27)    ;euro
 
 	;### CRYPTO ###
-	;BTC: 	[scale: #(EUR: 5670.5 ETH: 0.02291829) ;bitcoin
+	;BTC:   #(EUR: 5670.5 ETH: 0.02291829) ;bitcoin
 ] dims/currency
 
 ;================
 ;### DISTANCE ###
 ;================
-set-scales/dim [	
+set-scales/dim [
 	;metric
-	m: 		#(mm: 1000 cm: 100 dm: 10 km: .001);meter
+	m:      #(mm: 1000 cm: 100 dm: 10 km: .001);meter
 	km:     #(mi: 1.609344)
 	;internamtional
-	p: 		#(mm: (127 / 360 * _))	;point
-	pc: 	#(p: 12)				;pica
+	p:      #(mm: (127 / 360 * _))  ;point
+	pc:     #(p: 12)                ;pica
 	;imperial
-    inch: 	#(th: 1000 pica: 6);
-    th: 	#(inch: 0.001)			;thou
-    ft: 	#(inch: 12)				;foot
-    yd: 	#(ft: 3)				;yard
-    ch: 	#(yd: 22)				;chain
-    fur: 	#(ch: 10)				;furlong
-    mi: 	#(fur: 8)				;mile
-    lea: 	#(mi: 3)				;league
-    ftm: 	#(yd: 2.02667)			;fathom
-    cb: 	#(ftm: 100)				;cable
-    nm: 	#(cb: 10 m: 1852)		;nautical miles
-    li: 	#(inch: 7.92)			;link
-    rd: 	#(li: 25)				;rod
+	inch:   #(th: 1000 pica: 6);
+	th:     #(inch: 0.001)          ;thou
+	ft:     #(inch: 12)             ;foot
+	yd:     #(ft: 3)                ;yard
+	ch:     #(yd: 22)               ;chain
+	fur:    #(ch: 10)               ;furlong
+	mi:     #(fur: 8)               ;mile
+	lea:    #(mi: 3)                ;league
+	ftm:    #(yd: 2.02667)          ;fathom
+	cb:     #(ftm: 100)             ;cable
+	nm:     #(cb: 10 m: 1852)       ;nautical miles
+	li:     #(inch: 7.92)           ;link
+	rd:     #(li: 25)               ;rod
 ] dims/length
 
 ;==============
@@ -80,43 +80,43 @@ set-scales/dim [
 ;==============
 set-scales/dim [
 	;metric
-	kg: 	#(g: 1000 ton: .001)	;kilogram
-	g: 		#(mg: 1000)				;gram
+	kg:     #(g: 1000 ton: .001)    ;kilogram
+	g:      #(mg: 1000)             ;gram
 	;imperial
-	st: 	#(lb: 14)				;stone
-	qr: 	#(lb: 28)				;quarter
-	cwt: 	#(lb: 112)				;(long) hundredweight
-	lton: 	#(cwt: 20 lb: 2240)		;long-ton
+	st:     #(lb: 14)               ;stone
+	qr:     #(lb: 28)               ;quarter
+	cwt:    #(lb: 112)              ;(long) hundredweight
+	lton:   #(cwt: 20 lb: 2240)     ;long-ton
 	;avoirdupois
-	gr: 	#(mg: 64.79891)			;grain
-	dr: 	#(gr: (11.0 / 32 + 27 * _) carats: 8.859);dram
-	oz: 	#(dr: 16)				;ounce
-    lb: 	#(gr: 7000 oz: 16 dr: 256 kg: 0.45359237);pound
-	US-cwt: #(lb: 100)				;US hundredweight
-	ston: 	#(US-cwt: 20 lb: 2000)	;short-ton
+	gr:     #(mg: 64.79891)         ;grain
+	dr:     #(gr: (11.0 / 32 + 27 * _) carats: 8.859);dram
+	oz:     #(dr: 16)               ;ounce
+	lb:     #(gr: 7000 oz: 16 dr: 256 kg: 0.45359237);pound
+	US-cwt: #(lb: 100)              ;US hundredweight
+	ston:   #(US-cwt: 20 lb: 2000)  ;short-ton
 	;Troy
-	dwt: 	#(gr: 24 carats: 7.776)	;pennyweight
-	ozt: 	#(dwt: 20)				;troy ounce
-	lbt: 	#(ozt: 12 oz: 13.17)	;troy pound
+	dwt:    #(gr: 24 carats: 7.776) ;pennyweight
+	ozt:    #(dwt: 20)              ;troy ounce
+	lbt:    #(ozt: 12 oz: 13.17)    ;troy pound
 ] dims/mass
 
 ;============
 ;### TIME ###
 ;============
 set-scales/dim [
-	s:		#(ms: 1000 ns: 1000'000);second
-	mn: 	#(s: 60)		;minute
-	hr: 	#(mn: 60)		;hour
-	dy: 	#(hr: 24)		;day
-	wk: 	#(dy: 7)		;week
-	yr: 	#(dy: 365.25)	;year
+	s:      #(ms: 1000 ns: 1000'000);second
+	mn:     #(s: 60)                ;minute
+	hr:     #(mn: 60)               ;hour
+	dy:     #(hr: 24)               ;day
+	wk:     #(dy: 7)                ;week
+	yr:     #(dy: 365.25)           ;year
 	
-	fortnight:	#(dy: 14)
-	olympiad: 	#(yr: 4)
-	lustrum: 	#(yr: 5)
-	indiction: 	#(yr: 15)
-	decade: 	#(yr: 10)
-	century: 	#(yr: 100) 
+	fortnight:  #(dy: 14)
+	olympiad:   #(yr: 4)
+	lustrum:    #(yr: 5)
+	indiction:  #(yr: 15)
+	decade:     #(yr: 10)
+	century:    #(yr: 100) 
 	millennium: #(yr: 1000)
 ] dims/time
 
@@ -124,14 +124,14 @@ set-scales/dim [
 ;### TEMPERATURE ###
 ;===================
 set-scales/dim [	
-	C:    #(F: (_ * 9.0 / 5 + 32))  ;Celsius °C
-	K:    #(C: (_ - 237.15))        ;Kelvin
-	F:    #(C: (_ - 32 * 5.0 / 9))  ;Fahrenheit °F
-	;°R:    #(°C: (_ − 491.67 * 5 / 9));Rankine
-	;°De:   #(°C: (100 − (_ * 2 / 3))) ;Delisle
-	;°N:    #(°C: (_ * 100 / 33))      ;Newton
-	;°Ré:   #(°C: (_ * 5 / 4))         ;Réaumur
-	;°Rø:   #(°C: (_ − 7.5 * 40 / 21)) ;Rømer
+	C:    #(F: (_ * 9.0 / 5 + 32))    ;Celsius °C
+	K:    #(C: (_ - 237.15))          ;Kelvin
+	F:    #(C: (_ - 32 * 5.0 / 9))    ;Fahrenheit °F
+	;°R:    #(°C: (_ − 491.67 * ​5 / 9));Rankine
+	;°De:   #(°C: (100 − (_ * ​2 / 3))) ;Delisle
+	;°N:    #(°C: (_ * ​100 / 33))      ;Newton
+	;°Ré:   #(°C: (_ * ​5 / 4))         ;Réaumur
+	;°Rø:   #(°C: (_ − 7.5 * ​40 / 21)) ;Rømer
 ] dims/temperature
 
 ;=============
@@ -147,9 +147,10 @@ set-scales/dim [
 ;===================
 set-scales/dim [
 	byte:    #(bit: 8 B: 1)
+	crumb    #(bit: 2)
 	nibble:  #(bit: 4)
-	bit:     #(nat: 0.6931471805599455);(log-e _)) ; shannon
-	nat:     #(bit: 1.442695040888963) ;nepit, nit
+	bit:     #(nat: 0.6931471805599455) ;shannon
+	nat:     #(nit: 1 bit: 1.442695040888963) ;nepit
 	dit:     #(ban: 1 deciban: 10 bit: 3.321928094887363 nat: 2.302585092994046) ;hartley
 	trit:    #(bit: 1.584962500721156)
 	kbit:    #(bit: 1000)
