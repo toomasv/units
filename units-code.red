@@ -27,8 +27,7 @@ system/lexer/pre-load: function [src len /local n u][
 	parse src [some [unit | skip]]
 ]
 
-uctx: context [
-
+uctx: context append compose [
 	;=== local ops ====
 	*=*:  :system/words/=
 	*<*:  :system/words/<
@@ -51,12 +50,12 @@ uctx: context [
 	]
 
 	=:  make op! func [a b][either comparable? a b [equal? a/as b/symbol b/amount][equal? a b]]
-	_<: make op! func [a b][either comparable? a b [lesser? a/as b/symbol b/amount][lesser? a b]] ;Dunno how to redefine < inside obj (i.e. without `set`)
+	(to set-word! '<) make op! func [a b][either comparable? a b [lesser? a/as b/symbol b/amount][lesser? a b]]
 	>:  make op! func [a b][either comparable? a b [greater? a/as b/symbol b/amount][greater? a b]]
 	<=: make op! func [a b][either comparable? a b [lesser-or-equal? a/as b/symbol b/amount][lesser-or-equal? a b]]
 	>=: make op! func [a b][either comparable? a b [greater-or-equal? a/as b/symbol b/amount][greater-or-equal? a b]]
 	<>: make op! func [a b][either comparable? a b [not equal? a/as b/symbol b/amount][not equal? a b]]
-
+][	
 	+: make op! func [a b][
 		either comparable? a b [
 			b': re-dimension a b
