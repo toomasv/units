@@ -67,7 +67,7 @@ E.g.:
 == make vector! [0 1 1 -2 0 0 0 0 0]
 ```
 
-Quantities can be compared, added, subtracted, multiplied, divided and rised to powers. Comparisons return logic values arithmetic operations return new objects. (Beware `_<`! Other ops are as usual) In following `units []` are implied:
+Quantities can be compared, added, subtracted, multiplied, divided and rised to powers. Comparisons return logic values arithmetic operations return new objects. In following `units []` are implied:
 ```
 USD$1 _< EUR$1
 ;== true
