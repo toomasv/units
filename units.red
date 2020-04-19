@@ -9,13 +9,13 @@ Red []
 
 base-dimension:   make vector! [0  0  0  0  0  0  0  0  0]
 
-dims: reduce [
+dims: reduce [                                             ;standard unit
     ;BASIC
 	;finance
 	'currency     make vector! [1  0  0  0  0  0  0  0  0] ;USD
 	;physics                                               ;SI
 	'mass         make vector! [0  1  0  0  0  0  0  0  0] ;kg   kilogram
-	'length       make vector! [0  0  1  0  0  0  0  0  0] ;m    mass
+	'length       make vector! [0  0  1  0  0  0  0  0  0] ;m    meter
 	'time         make vector! [0  0  0  1  0  0  0  0  0] ;s    second
 	'current      make vector! [0  0  0  0  1  0  0  0  0] ;A    amper
 	'temperature  make vector! [0  0  0  0  0  1  0  0  0] ;K    kelvin
@@ -127,11 +127,11 @@ set-scales/dim [
 	C:    #(F: (_ * 9.0 / 5 + 32))  ;Celsius °C
 	K:    #(C: (_ - 237.15))        ;Kelvin
 	F:    #(C: (_ - 32 * 5.0 / 9))  ;Fahrenheit °F
-	;°R:    #(°C: (_ − 491.67 * ​5 / 9));Rankine
-    ;°De:   #(°C: (100 − (_ * ​2 / 3))) ;Delisle
-    ;°N:    #(°C: (_ * ​100 / 33))      ;Newton
-    ;°Ré:   #(°C: (_ * ​5 / 4))         ;Réaumur
-    ;°Rø:   #(°C: (_ − 7.5 * ​40 / 21)) ;Rømer
+	;°R:    #(°C: (_ − 491.67 * 5 / 9));Rankine
+	;°De:   #(°C: (100 − (_ * 2 / 3))) ;Delisle
+	;°N:    #(°C: (_ * 100 / 33))      ;Newton
+	;°Ré:   #(°C: (_ * 5 / 4))         ;Réaumur
+	;°Rø:   #(°C: (_ − 7.5 * 40 / 21)) ;Rømer
 ] dims/temperature
 
 ;=============
