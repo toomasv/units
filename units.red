@@ -7,32 +7,40 @@ Red []
 
 ;SI base-dims: length (L), mass (M), time (T), electric current (I), absolute temperature (Θ), amount of substance (N) and luminous intensity (J)
 
-base-dimension:   make vector! [0  0  0  0  0  0  0  0  0]
+base-dimension:    make vector! [0  0  0  0  0  0  0  0  0  0]
 
-dims: reduce [                                             ;standard unit
+dims: reduce [                                                ;standard unit
 	;BASIC
+	'angle         make vector! [1  0  0  0  0  0  0  0  0  0] ;rad  radian
+	;physics                                                   ;SI
+	'mass          make vector! [0  1  0  0  0  0  0  0  0  0] ;kg   kilogram
+	'length        make vector! [0  0  1  0  0  0  0  0  0  0] ;m    meter
+	'time          make vector! [0  0  0  1  0  0  0  0  0  0] ;s    second
+	'current       make vector! [0  0  0  0  1  0  0  0  0  0] ;A    amper
+	'temperature   make vector! [0  0  0  0  0  1  0  0  0  0] ;K    kelvin
+	'amount        make vector! [0  0  0  0  0  0  1  0  0  0] ;mol  mole
+	'intensity     make vector! [0  0  0  0  0  0  0  1  0  0] ;cd   candela
 	;finance
-	'currency     make vector! [1  0  0  0  0  0  0  0  0] ;USD
-	;physics                                               ;SI
-	'mass         make vector! [0  1  0  0  0  0  0  0  0] ;kg   kilogram
-	'length       make vector! [0  0  1  0  0  0  0  0  0] ;m    meter
-	'time         make vector! [0  0  0  1  0  0  0  0  0] ;s    second
-	'current      make vector! [0  0  0  0  1  0  0  0  0] ;A    amper
-	'temperature  make vector! [0  0  0  0  0  1  0  0  0] ;K    kelvin
-	'amount       make vector! [0  0  0  0  0  0  1  0  0] ;mol  mole
-	'intensity    make vector! [0  0  0  0  0  0  0  1  0] ;cd   candela
+	'currency      make vector! [0  0  0  0  0  0  0  0  1  0] ;USD
 	;information
-	'information  make vector! [0  0  0  0  0  0  0  0  1] ;bit  shannon
+	'information   make vector! [0  0  0  0  0  0  0  0  0  1] ;bit  shannon
 	
 	;DERIVED
-	'force        make vector! [0  1  1 -2  0  0  0  0  0] ;N    newton
-	'pressure     make vector! [0  1 -1 -2  0  0  0  0  0] ;
-	'area         make vector! [0  0  2  0  0  0  0  0  0] ;m2
-	'volume       make vector! [0  0  3  0  0  0  0  0  0] ;m3
-	'frequency    make vector! [0  0  0 -1  0  0  0  0  0] ;s-1
-	'velocity     make vector! [0  0  1 -1  0  0  0  0  0] ;m/s
-	'acceleration make vector! [0  0  1 -2  0  0  0  0  0]
-	'bitrate      make vector! [0  0  0 -1  0  0  0  0  1] ;bit/s
+	'area          make vector! [0  0  2  0  0  0  0  0  0  0] ;m2   
+	'volume        make vector! [0  0  3  0  0  0  0  0  0  0] ;m3
+	'frequency     make vector! [0  0  0 -1  0  0  0  0  0  0] ;s-1
+	'velocity      make vector! [0  0  1 -1  0  0  0  0  0  0] ;m/s
+	'acceleration  make vector! [0  0  1 -2  0  0  0  0  0  0] ;m/s2
+	'bitrate       make vector! [0  0  0 -1  0  0  0  0  0  1] ;bit/s
+	'force         make vector! [0  1  1 -2  0  0  0  0  0  0] ;N    newton
+	'pressure      make vector! [0  1 -1 -2  0  0  0  0  0  0] ;Pa   pascal N/m2, kg/m*s2
+	'momentum      make vector! [0  1  1 -1  0  0  0  0  0  0]
+	'energy        make vector! [0  1  2 -2  0  0  0  0  0  0] ;J    joule
+	'power         make vector! [0  1  2 -3  0  0  0  0  0  0] ;W    watt
+	'density       make vector! [0  1 -3  0  0  0  0  0  0  0] ;kg/m3
+	'vorticity     make vector! [1  0  0 -1  0  0  0  0  0  0] ;rad/s
+	
+	'charge        make vector! [0  0  0  1  1  0  0  0  0  0] ;C    coulomb  A*s
 ]
 
 dimensions: make map! []
@@ -170,6 +178,7 @@ set-scales/dim [
 	GiB:     #(MiB: 1024)
 	TiB:     #(GiB: 1024)
 ] dims/information
+
 set-scales/dim [
 	bps:     #("bit/s" 1)
 	Kbps:    #(bps: 1000)
@@ -181,4 +190,11 @@ set-scales/dim [
 	"MiB/s"  #("KiB/s" 1024)
 	"GiB/s"  #("MiB/s" 1024)
 ] dims/bitrate
+
+set-scales/dim reduce [
+	quote rad: make map! compose [deg: (180 / pi) turn: (.5 / pi)]
+	quote deg: make map! compose [rad: (pi / 180)]
+	quote turn: make map! compose [deg: 360 rad: (2 * pi)]
+] dims/angle
+
 ()
