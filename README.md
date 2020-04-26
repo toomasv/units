@@ -72,6 +72,7 @@ make object! [
 
 Fields can be accessed with corresponding functions:
 ```
+utype? <val>
 symbol? <val>
 amount? <val>
 dim? <val>
@@ -82,6 +83,13 @@ vec? <val>
 
 E.g.:
 ```
+>> units [utype? (0,0,0,1) ** 0]
+== vector
+>> units [utype? 1kg*m/s2]
+== force
+>> units [utype? 100km/hr]
+== velocity
+
 >> units [scale? USD$1]
 == #(
     CAD: 1.4
@@ -157,44 +165,44 @@ to-unit dyn 1N
 
 Dimensioned quanities can be vectorized:
 ```
->> units [amount? (100m * 30deg) + (150m * 135deg)]
-== 157.2750096071349
+amount? (100m * 30deg) + (150m * 135deg)
+;== 157.2750096071349
 ```
 
 Vectorized quantities can be turned, elevated and rotated:
 ```
->> units [p: 10m * 45deg turn p 15deg elevate p 30deg probe angle? p probe elevation? p]
-59.99999999999999
-30.000000000000004
->> units [p: rotate 10m * 0deg (-120,1,1,1) probe angle? p elevation? p]
+p: 10m * 45deg turn p 15deg elevate p 30deg probe angle? p probe elevation? p
+60.0
+30.0
+p: rotate 10m * 0deg (-120,1,1,1) probe angle? p elevation? p
 -45.0
-== 90.0
->> units [p: rotate 10m * 0deg (120,1,1,1) probe angle? p elevation? p]
+;== 90.0
+p: rotate 10m * 0deg (120,1,1,1) probe angle? p elevation? p
 90.0
-== 0.0
+;== 0.0
 ```
 Second argument to `rotate` is either vector! type or vector quantity, where first element is rotation angle and rest determines rotation axis.
 
 Finally, basic complex and quaternion arithmetic works:
 ```
->> units [vec? (1,0) * (0,1)]
-== make vector! [0.0 1.0 0.0 0.0]
->> units [vec? (1,0) * ((0,1) ** 2)]
-== make vector! [-1.0 0.0 0.0 0.0]
->> units [vec? (1,0) * ((0,1) ** 3)]
-== make vector! [0.0 -1.0 0.0 0.0]
->> units [vec? (1,0) * ((0,1) ** 4)]
-== make vector! [1.0 0.0 0.0 0.0]
+vec? (1,0) * (0,1)
+;== make vector! [0.0 1.0 0.0 0.0]
+vec? (1,0) * ((0,1) ** 2)
+;== make vector! [-1.0 0.0 0.0 0.0]
+vec? (1,0) * ((0,1) ** 3)
+;== make vector! [0.0 -1.0 0.0 0.0]
+vec? (1,0) * ((0,1) ** 4)
+;== make vector! [1.0 0.0 0.0 0.0]
 
->> units [vec? (1,0,0,0) * (0,0,0,1)]
-== make vector! [0.0 0.0 0.0 1.0]
->> units [vec? (0,1,0,0) * (0,0,0,1)]
-== make vector! [0.0 0.0 -1.0 0.0]
->> units [vec? (0,1,0,0) * (0,0,1,0)]
-== make vector! [0.0 0.0 0.0 1.0]
->> units [vec? (0,1,0,0) * (0,1,0,0)]
-== make vector! [-1.0 0.0 0.0 0.0]
-
+vec? (1,0,0,0) * (0,0,0,1)
+;== make vector! [0.0 0.0 0.0 1.0]
+vec? (0,1,0,0) * (0,0,0,1)
+;== make vector! [0.0 0.0 -1.0 0.0]
+vec? (0,1,0,0) * (0,0,1,0)
+;== make vector! [0.0 0.0 0.0 1.0]
+vec? (0,1,0,0) * (0,1,0,0)
+;== make vector! [-1.0 0.0 0.0 0.0]
+```
 >> units [vec? (0,0,0,1) ** 2]
 == make vector! [-1.0 0.0 0.0 0.0]
 >> units [vec? (0,0,0,1) ** 3]
