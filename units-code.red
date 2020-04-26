@@ -220,7 +220,7 @@ uctx: context append compose [
 	quantities?: func [a b][all [quantity? a quantity? b]]
 	is-angle?: func [a][all [quantity? a a/type *=* 'angle]]
 	angles?: func [a b][all [a/type *=* 'angle b/type *=* 'angle]]
-	uvector?: func [a][all [quantity? a a/type *=* 'vector]]
+	is-vector?: func [a][all [quantity? a a/type *=* 'vector]]
 	vectors?: func [a b][all [is-vector? a is-vector? b]]
 	comparable?: func [a b][all [quantities? a b equal? a/dimension b/dimension]]
 	comparable-symbols?: func [sym1 [word! string!] sym2 [word! string!]][
@@ -677,7 +677,8 @@ uctx: context append compose [
 			obj/scale: scales/(obj/symbol)
 		]
 	]
-
+	
+	round*: :system/words/round
 	utype?:  func [obj][obj/type]
 	symbol?: func [obj][obj/symbol]
 	parts?:  func [obj][obj/parts]
@@ -687,13 +688,12 @@ uctx: context append compose [
 	vec?:    function [obj /round to /precise][
 		either precise [obj/vector][
 			vec: copy obj/vector
-			rnd: :system/words/round
 			forall vec [
-				vec/1: rnd/to vec/1 any [to .01]
+				vec/1: round*/to vec/1 any [to .01]
 			] vec
 		] 
 	]
-	angle?:  function [obj /rad /deg /turn /dim 'd][
+	angle?:  function [obj /rad /deg /turn /dim 'd /round to /precise][
 		if obj/vector [
 			ang: switch/default d [
 				i [arctangent2 obj/vector/2 obj/vector/1]
@@ -711,14 +711,19 @@ uctx: context append compose [
 					ang: scales/deg/turn * ang
 				]
 			]
-			ang
+			either precise [ang][
+				round*/to ang any [to .01]
+			]
 		]
 	]
-	elevation?: function [obj /rad /deg][
+	elevation?: function [obj /rad /deg /round to /precise][
 		if obj/vector [
 			either any [rad all [not deg obj/parts find flatten obj/parts 'rad]][
-				asin obj/vector/4 / magnitude? obj
-			][	arcsine obj/vector/4 / magnitude? obj]
+				ang: asin obj/vector/4 / magnitude? obj
+			][	ang: arcsine obj/vector/4 / magnitude? obj]
+			either precise [ang][
+				round*/to ang any [to .01]
+			]
 		]
 	]
 	;re?:     function [obj][if v: obj/vector [v/1]]
