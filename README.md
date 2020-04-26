@@ -83,7 +83,7 @@ vec? <val>
 
 E.g.:
 ```
->> units [utype? (0,0,0,1) ** 0]
+>> units [utype? (0,0,0,1)]
 == vector
 >> units [utype? 1kg*m/s2]
 == force
