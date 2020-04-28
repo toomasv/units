@@ -63,14 +63,14 @@ set-scales/dim [
 set-scales/dim [
 	;metric
 	m:      #(mm: 1000 cm: 100 dm: 10 km: .001);meter
-	km:     #(mi: 1.609344)
+	km:     #(mi: 0.621371192);1.609344)
 	;internamtional
 	p:      #(mm: (127 / 360 * _))  ;point
 	pc:     #(p: 12)                ;pica
 	;imperial
-	inch:   #(th: 1000 pica: 6);
-	th:     #(inch: 0.001)          ;thou
-	ft:     #(inch: 12)             ;foot
+	in:     #(th: 1000 pica: 6);
+	th:     #(in: 0.001)            ;thou
+	ft:     #(in: 12)               ;foot
 	yd:     #(ft: 3)                ;yard
 	ch:     #(yd: 22)               ;chain
 	fur:    #(ch: 10)               ;furlong
@@ -79,7 +79,7 @@ set-scales/dim [
 	ftm:    #(yd: 2.02667)          ;fathom
 	cb:     #(ftm: 100)             ;cable
 	nm:     #(cb: 10 m: 1852)       ;nautical miles
-	li:     #(inch: 7.92)           ;link
+	li:     #(in: 7.92)             ;link
 	rd:     #(li: 25)               ;rod
 ] dims/length
 
