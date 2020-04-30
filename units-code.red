@@ -1,7 +1,7 @@
 Red [
 	Description: "Toy system of dimensional quantities"
 	Date: 18-Apr-2020
-	LAst: 26-Apr-2020
+	Last: 30-Apr-2020
 	Author: "Toomas Vooglaid"
 ]
 
@@ -16,12 +16,12 @@ system/lexer/pre-load: function [src len /local n u out][
 	money: [copy u 3 upper #"$" copy n num (c: none f: "basic ")]
 	dimensioned: [some alpha opt digit]
 	compound: [dimensioned any [#"*" dimensioned]]
-	paren: [#"(" thru #")"]
+	paren: [#"(" some [paren | not #")" skip] #")"]
 	pair: [num #"x" num]
 	vector: [
 		#"(" s: collect set out [
 			keep [num | paren]
-			1 3 [#"," keep [num | paren]] 
+			1 3 [#"," keep [paren | num]] 
 			;opt [ahead [4 [#"," num] #")"] 4 [#"," keep num]]
 		]	e: #")" (e: change/part s rejoin ["vector compose " #"[" out "]"] e) :e
 	]
@@ -785,7 +785,7 @@ uctx: context append compose [
 			true [rise-error [{Argument to `inverse` should be either vector! or quantity of type `vector`!^/Type `} type?/word q {` was provided instead.}]]
 		]
 	]
-	rotate*: function [axis q][ ; axis: [ang-degrees normalized-vec]
+	rotate*: function [axis q][ ; axis: [ang-degrees + normalized-vec]
 		a: either is-vector? axis [axis/vector][axis]
 		b: either quantity? q [q/vector][q]
 		either all [vector? a vector? b][
@@ -808,27 +808,40 @@ uctx: context append compose [
 	][
 		if not all [quantity? quantity quantity/vector][rise-error ["<quantity> arg to `rotate` needs to be vectorized!"]]
 		if not any [vector? rotator is-vector? rotator][rise-error ["<rotator> argument to `rotate` must be vector! or quantity of type 'vector!"]]
+		axis: make-rotator rotator
+		rotate* axis quantity
+	]
+	make-rotator: function [rotator][
 		axis: either is-vector? rotator [rotator/vector][rotator]
 		ang: first axis
 		axis/1: 0.0
 		axis: normalize axis
 		axis/1: ang
-		rotate* axis quantity
+		either is-vector? rotator [
+			rotator/vector: axis
+			rotator
+		][axis]
 	]
 	turn: function [
 		"Turn <quantity> on x-y plane by <angle>"
 		quantity "Quantity to be turned"
 		angle "Angle by which to turn (number! or angle quantity)"
+		/only
 	][
 		if not all [quantity? quantity quantity/vector] [
 			rise-error ["<quantiy> argument to `turn` must be vectorized quantity!"]
 		]
 		either any [number? angle is-angle? angle] [
 			ang: either number? angle [1.0 * angle][as-unit deg angle]
-			v: make-projection ang +' angle? quantity 'deg
+			v: make-projection ang +' angle?/precise quantity 'deg
 			v * cosine elevation? quantity
-			quantity/vector/2: either is-angle? quantity [v/2][v/2 * quantity/amount]
-			quantity/vector/3: either is-angle? quantity [v/3][v/3 * quantity/amount]
+			either any [is-angle? quantity only] [
+				quantity/vector/2: v/2
+				quantity/vector/3: v/3
+			][
+				quantity/vector/2: v/2 * quantity/amount
+				quantity/vector/3: v/3 * quantity/amount
+			]
 			quantity
 		][
 			rise-error ["<angle> argument to `turn` must be either number (deg) or angle quantity!"]
