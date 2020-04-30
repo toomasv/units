@@ -11,11 +11,11 @@ units [<Units-DSL>]
 
 Units-DSL is ordinary RED with added pseudotype for dimensioned (i.e. unitized) quantities in form `<number><units>`, e.g. `1kg`, `-200m`, `10m2`, `20e8dyn`, `5.5kg*m/s2`, `10m/s`... and currencies either in form `USD$100`, `EUR$50.35` or as other quantities `30CAD`, `1.5PLZ` or in combination with other quantities `100USD/hr`, `50EUR/m2`. 
 
-Now also angles `10deg`, `1.5rad`, also in combination with other quantities, e.g. `1turn/hr`; and vectors with parentized literal form: `(1,2)`, `(1,2,3)` or `(1,2,3,4)` (somewhat like expected `point!` type). All vectors are expanded to 4 dimensions, but not all dimensions are always used. Vectors are used to implement complex numbers and quaternions.
+Now also angles `10deg`, `1.5rad`, also in combination with other quantities, e.g. `1turn/hr`; and vectors with parenthesized literal form: `(1,2)`, `(1,2,3)` or `(1,2,3,4)` (somewhat like expected `point!` type). All vectors are expanded to 4 dimensions, but not all dimensions are always used. Vectors are used to implement complex numbers and quaternions.
 
 Scales for quantities are defined in `%units.red`, implementation is in `%units-code.red`.
 
-Quantities are rewritten with `pre-load` into parenthized functions
+Quantities are rewritten with `pre-load` into parenthesized functions
 ```
 >> "1kg"
 == "(basic kg 1)"
