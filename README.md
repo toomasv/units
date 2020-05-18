@@ -212,6 +212,7 @@ vec? (0,1,0,0) * (0,1,0,0)
 == make vector! [1.0 0.0 0.0 0.0]
 ```
 18-May-2020
+
 Added entities -- these are objects which can contain several quantities, e.g.:
 ```
 units [
