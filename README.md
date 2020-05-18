@@ -203,10 +203,38 @@ vec? (0,1,0,0) * (0,0,1,0)
 vec? (0,1,0,0) * (0,1,0,0)
 ;== make vector! [-1.0 0.0 0.0 0.0]
 ```
+```
 >> units [vec? (0,0,0,1) ** 2]
 == make vector! [-1.0 0.0 0.0 0.0]
 >> units [vec? (0,0,0,1) ** 3]
 == make vector! [0.0 0.0 0.0 -1.0]
 >> units [vec? (0,0,0,1) ** 4]
 == make vector! [1.0 0.0 0.0 0.0]
+```
+18-May-2020
+Added entities -- these are objects which can contain several quantities, e.g.:
+```
+units [
+	;Recipe
+	Americana-for-two: entity [flour-00: 625g water: 375g salt: 15g yeast: 0.67g sugar: 10g oil: 50g]
+	prices: entity [flour-00: 20.0EUR/kg salt: 5.53EUR/kg yeast: 2.8EUR/kg sugar: 0.56EUR/kg oil: 1.29EUR/kg water: 0.002EUR/kg]
+	Americana-for-200: 100 * Americana-for-two
+	price: Americana-for-200 * prices
+]
+```
+`form-entity` forms all quantities in given entity:
+```
+>> units [form-entity price]
+== make object! [
+    flour-00: "EUR$1250.00"
+    water: "EUR$0.08"
+    salt: "EUR$8.30"
+    yeast: "EUR$0.19"
+    sugar: "EUR$0.56"
+    oil: "EUR$6.4...
+```
+`total-dim` sums quantities with given dimension in entity:
+```
+>> units [form-unit total-dim price 'currency]
+== "EUR$1265.57"
 ```
