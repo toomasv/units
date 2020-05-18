@@ -11,6 +11,8 @@ num: [opt "-" some [digit opt "'"] opt [dot some [digit opt "'"]] opt sci]
 upper: charset [#"A" - #"Z"]
 lower: charset [#"a" - #"z"]
 alpha: union upper lower
+splitter: charset "*/"
+;#include %../utils/replace-each.red
 
 system/lexer/pre-load: function [src len /local n u out][
 	money: [copy u 3 upper #"$" copy n num (c: none f: "basic ")]
@@ -33,6 +35,7 @@ system/lexer/pre-load: function [src len /local n u out][
 		opt [if (c) (f: "derive " u: rejoin ["{" u "}"])]
 	]
 	unit: [change [money | measure] (rejoin [#"(" f u #" " n #")"])]
+	greek: [remove "greek " s: copy gr some alpha e: (change )]
 	parse src [some [pair | unit | vector | skip]]
 ]
 
@@ -103,6 +106,33 @@ uctx: context append compose [
 
 	*: make op! function [a b][
 		case [
+			any [all [entity? a number? b] all [number? a entity? b]][
+				if number? b [c: b b: a a: c]
+				b: copy/deep b
+				foreach field words-of b [
+					if quantity? :b/:field [
+						b/:field: a * b/:field 
+					]
+				]
+				b
+			]
+			all [entity? a entity? b][
+				fields: intersect words-of a words-of b
+				object collect [
+					foreach field fields [
+						case [
+							quantity? a/:field [
+								keep to-set-word field
+								keep a/:field * b/:field
+							]
+							field = 'type [
+								keep quote type:
+								keep a/type
+							]
+						]
+					]
+				]
+			]
 			all [number? a quantity? b] [
 				c: make b compose [amount: (b/amount *' a)]
 				if c/vector [
@@ -222,6 +252,7 @@ uctx: context append compose [
 	angles?: func [a b][all [a/type *=* 'angle b/type *=* 'angle]]
 	is-vector?: func [a][all [quantity? a a/type *=* 'vector]]
 	vectors?: func [a b][all [is-vector? a is-vector? b]]
+	entity?: func [a][all [object? a a/type = 'entity]]
 	comparable?: func [a b][all [quantities? a b equal? a/dimension b/dimension]]
 	comparable-symbols?: func [sym1 [word! string!] sym2 [word! string!]][
 		equal? get-dimension sym1 get-dimension sym2
@@ -250,7 +281,7 @@ uctx: context append compose [
 		spec/amount: value
 		spec/parts: to block! sym
 		spec/dimension: any [d d: dimensions/:sym]
-		spec/type: to-lit-word first back find dims d;quote 'basic
+		spec/type: to-lit-word first back find dims d
 		if spec/dimension/1 > 0 [		;it is angle
 			spec/vector: make-projection value sym
 		]
@@ -279,6 +310,10 @@ uctx: context append compose [
 		object spec
 	]
 
+	entity: function [blk [block!]][
+		object compose append blk [type: to-lit-word 'entity]
+	]
+	
 	unit-value: function [sym obj /only][
 		if not find obj/scale sym [
 			either only [
@@ -434,6 +469,34 @@ uctx: context append compose [
 		]
 	]
 	
+	form-entity: func [ent [object!]][
+		either entity? ent[
+			object collect [
+				foreach [w i] body-of ent [
+					if quantity? i [
+						keep w
+						keep form-unit i
+					]
+				]
+			]
+		][
+			rise-error "`form-entity` expects `entity` as argument"
+		]
+	]
+	total-dim: func [ent dim [word! vector!] /local total][
+		if word? dim [dim: dims/:dim]
+		either entity? ent [
+			foreach [w i] body-of ent [
+				if all [quantity? i i/dimension = dim] [
+					total: either total [total + i][i]
+				]
+			]
+		][
+			rise-error "`total` expects `entity` as argument"
+		]
+		total
+	]
+	
 	make-parts: function [sym][
 		sym: split sym #"/"
 		collect [
@@ -534,14 +597,29 @@ uctx: context append compose [
 		]
 	]
 	
-	re-dimension: function [a b /repeated][
+	split-up: func [sym][split form sym splitter]
+	
+	missing-parts?: func [a b][
+		exclude split-up b/symbol split-up a/symbol
+	]
+	
+	re-dimension: function [a b /repeated][; PROBLEMATIC!!!!
 		case [
-			equal? a/symbol b/symbol [copy/deep b]
+			equal? a/symbol b/symbol [copy/deep b] ; They have same units
+			all [word? a/symbol find flatten b/parts a/symbol][copy/deep b] ;B is composed but already includes same unit as A
+			;all [word? b/symbol found: find flatten a/parts b/symbol][sym: found/1 to-unit :sym b] ;B is composed but already includes same unit as A
+;			missing: missing-parts? a b [
+;				either empty? missing [
+;					copy/deep b
+;				][
+;					
+;				]
+;			]
 			all [b/scale b/scale/(sym: a/symbol)] [to-unit :sym b]
-			all [word? b/symbol found: find keys-of b/scale string!][
-				sym: found/1
-				re-dimension/repeated a to-unit :sym b
-			]
+			;all [word? b/symbol found: find keys-of b/scale string!][
+			;	sym: found/1
+			;	re-dimension/repeated a to-unit :sym b
+			;]
 			all [word? a/symbol found: find keys-of a/scale string!][
 				sym: found/1
 				re: re-dimension/repeated to-unit :sym a b
@@ -865,6 +943,19 @@ uctx: context append compose [
 		]
 	]
 	
+	;GA
+	gp: function [p q][
+		a: either vector? p [p][p/vector]
+		b: either vector? q [q][q/vector]
+		make vector! reduce [
+			(a/1 * b/1) + (a/2 * b/2) + (a/3 * b/3) - (a/4 * b/4)
+			(a/1 * b/2) + (a/2 * b/1) + (a/4 * b/3) - (a/3 * b/4)
+			(a/1 * b/3) + (a/3 * b/1) + (a/2 * b/4) - (a/4 * b/2)
+			(a/1 * b/4) + (a/4 * b/1) + (a/2 * b/3) - (a/3 * b/2)
+		]
+	]
+	
+	
 	;Public funcs
 	set 'set-scale function [
 		"Set scales for given symbol"
@@ -891,7 +982,7 @@ uctx: context append compose [
 		"Set scales for given units"
 		specs [block!] "Pairs of symbol and map of comparable units"
 		/dim 
-			d [vector!] "Vector of dimension powers [M L T I Θ N J $ B °]"
+			d [vector!] "Vector of dimension powers [vec M L T I Θ N J $ B °]"
 		/only "Limit scales to given specs"
 		/local sym spec
 	][

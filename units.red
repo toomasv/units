@@ -50,8 +50,9 @@ scales: make map! []
 ;### CURRENCY ###
 ;================
 set-scales/dim [
-	USD:    #(CAD: 1.4 EUR: 0.91)   ;US dollar
-	EUR:    #(PLZ: 4.56 CZK: 27)    ;euro
+	USD:    #(CAD: 1.4 EUR: 0.9359)   ;US dollar
+	EUR:    #(PLZ: 4.56 CZK: 27 USD: 1.112)    ;euro
+	GBP:    #(EUR: 1.14)            ;British pound
 
 	;### CRYPTO ###
 	;BTC:   #(EUR: 5670.5 ETH: 0.02291829) ;bitcoin
@@ -82,6 +83,17 @@ set-scales/dim [
 	li:     #(in: 7.92)             ;link
 	rd:     #(li: 25)               ;rod
 ] dims/length
+
+;==============
+;### VOLUME ###
+;==============
+set-scales/dim [
+	l:             #(ml: 1000 "m3" 0.001)  ;litre
+	tea-spoon:     #(ml: 5)
+	dessert-spoon: #(ml: 10)
+	table-spoon:   #(ml: 15)
+	cup:           #(ml: 250)
+] dims/volume
 
 ;==============
 ;### WEIGHT ###
@@ -191,6 +203,9 @@ set-scales/dim [
 	"GiB/s"  #("MiB/s" 1024)
 ] dims/bitrate
 
+;==============
+;### ANGLES ###
+;==============
 set-scales/dim reduce [
 	quote rad: make map! compose [deg: (180 / pi) turn: (.5 / pi)]
 	quote deg: make map! compose [rad: (pi / 180)]
