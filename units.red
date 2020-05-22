@@ -1,5 +1,6 @@
 Red []
 #include %units-code.red
+#include %currency-rates.red
 
 ;const: [
 ;	g: 9.80665 m/s2 ;gravity
