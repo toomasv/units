@@ -239,3 +239,23 @@ units [
 >> units [form-unit total-dim price 'currency]
 == "EUR$1265.57"
 ```
+
+21-May-2020
+Added downloading currency rates by @rebolek (code in %currency-rates.red).
+Initially for USD only, e.g.
+```
+>> set-scales/dim make-rates-table select get-rates 'rates dims/currency
+>> probe scales/USD
+#(
+    CAD: 0.7179857058553538
+    EUR: 0.8992805755395683
+    HKD: 0.12902085542594555
+    ISK: 0.006996805111821086
+    PHP: 0.019705940576241292
+    DKK: 0.14685764866822243
+    HUF: 0.0031254459825888394
+    CZK: 0.03983266642415424
+    AUD: 0.6536923168766043
+    RON: 0.22610886264144708
+...
+```
