@@ -11,7 +11,7 @@ num: [opt "-" some [digit opt "'"] opt [dot some [digit opt "'"]] opt sci]
 upper: charset [#"A" - #"Z"]
 lower: charset [#"a" - #"z"]
 alpha: union upper lower
-splitter: charset "*/"
+splitter: union charset "*/" digit
 ;#include %../utils/replace-each.red
 
 system/lexer/pre-load: function [src len /local n u out][
@@ -469,13 +469,13 @@ uctx: context append compose [
 		]
 	]
 	
-	form-entity: func [ent [object!]][
+	form-entity: func [ent [object!] /as 'sym][
 		either entity? ent[
 			object collect [
 				foreach [w i] body-of ent [
 					if quantity? i [
 						keep w
-						keep form-unit i
+						keep either as [form-as :sym i][form-unit i]
 					]
 				]
 			]
@@ -483,6 +483,7 @@ uctx: context append compose [
 			rise-error "`form-entity` expects `entity` as argument"
 		]
 	]
+	
 	total-dim: func [ent dim [word! vector!] /local total][
 		if word? dim [dim: dims/:dim]
 		either entity? ent [
@@ -588,11 +589,16 @@ uctx: context append compose [
 	count-dims: function [dim][
 		i: 0
 		forall dim [if dim/1 <> 0 [i: i + 1]]
+		i
 	]
 	
 	compound?: function [b][
+		dim: case [
+			word? b [dimensions/:b]
+			quantity? b [b/dimension]
+		]
 		any [
-			1 <> sum dim: b/dimension
+			1 <> sum dim
 			1 < count-dims dim
 		]
 	]
@@ -603,88 +609,145 @@ uctx: context append compose [
 		exclude split-up b/symbol split-up a/symbol
 	]
 	
-	re-dimension: function [a b /repeated][; PROBLEMATIC!!!!
-		case [
-			equal? a/symbol b/symbol [copy/deep b] ; They have same units
-			all [word? a/symbol find flatten b/parts a/symbol][copy/deep b] ;B is composed but already includes same unit as A
-			;all [word? b/symbol found: find flatten a/parts b/symbol][sym: found/1 to-unit :sym b] ;B is composed but already includes same unit as A
-;			missing: missing-parts? a b [
-;				either empty? missing [
-;					copy/deep b
-;				][
-;					
-;				]
-;			]
-			all [b/scale b/scale/(sym: a/symbol)] [to-unit :sym b]
-			;all [word? b/symbol found: find keys-of b/scale string!][
-			;	sym: found/1
-			;	re-dimension/repeated a to-unit :sym b
-			;]
-			all [word? a/symbol found: find keys-of a/scale string!][
-				sym: found/1
-				re: re-dimension/repeated to-unit :sym a b
-				make re compose/only [symbol: (to-lit-word a/symbol) parts: (a/parts)]
-			]
-			;all [not repeated compound? b] [
-			;	std: make b compose/only [
-			;		type: 'derived
-			;		parts: (p: get-standard b/dimension)
-			;		symbol: (build-symbol p)
-			;	]
-			;	if not b/scale [put b/scale make map! copy []]
-			;	put b/scale std/symbol 1
-			;	re-dimension/repeated a std
-			;]
-			true [
-				triples: collect [
-					foreach e2 flatten b/parts [
-						foreach e1 flatten a/parts [
-							if all [
-								not equal? e1 e2 
-								dimensions/:e1 *=* dimensions/:e2
-							][
-								keep e1 keep e2 
-								keep any [
-									scales/:e2/:e1 
-									resolve e2 e1
-								]
-							]
-						]
-					]
-				]
-				either empty? triples [
-					b
+	common-dims: function [a b][
+		collect [
+			repeat i length? base-dimension [
+				if not any [
+					zero? a/dimension/:i 
+					zero? b/dimension/:i
 				][
-					parts: copy/deep b/parts
-					either block? frst: first parts [
-						val0: val: b/amount
-						foreach [e1 e2 v] triples [
-							if found: find frst e2 [
-								change found e1
-								val: val *' either integer? i: found/2 [
-									v **' i
-								][	v]
-							]
-						]
-						if scnd: second parts [
-							val: 1.0 *' val
-							foreach [e1 e2 v] triples [
-								if found: find scnd e2 [
-									change found e1
-									val: val |' either integer? i: found/2 [
-										v **' i
-									][	v]
-								]
-							]
-						]
-						out: build-unit parts val
-						if b/vector [out/vector: (copy b/vector) * val / val0]
-						out
+					keep dims/(i * 2 - 1)
+				]
+			]
+		]
+	]
+	
+	to-units: func [f][
+		f: split-up f 
+		forall f [
+			either empty? f/1 [
+				f: next f
+			][
+				f/1: to-word f/1
+			]
+		] 
+		f
+	]
+	
+	find-derivative: function [sym][
+		parse body-of scales/:sym [
+			some [string! quote 1 s: (return s/-2) thru end | skip]
+		]
+		none
+	]
+	
+	find-dim-in-units: function [units dim][
+		foreach u units [
+			if compound? u [
+				f: find-derivative u
+				return find-dim-in-units to-units f dim
+			]
+			if dimensions/:u = dim [return u]
+		]
+		none
+	]
+	
+	unit-of: function [
+		"What unit does quantity use for this dimension?"
+		dim [vector! word!] q [object!]
+	][
+		if word? dim [dim: dims/:dim]
+		find-dim-in-units flatten q/parts dim
+	]
+	
+	remake-derivative: function [q][
+		sym: find-derivative q/symbol
+		derive :sym q/amount
+	]
+	
+	re-dimension: function [
+		"Redimension b in units of a (if any)"
+		a [object!] b [object!]
+	][
+		common: common-dims a b
+		case [
+			any [empty? common a/symbol = b/symbol] [copy/deep b]
+			any [
+				all [b/scale b/scale/(sym: a/symbol)]
+				all [a/scale a/scale/(sym: b/symbol)]
+			][to-unit :sym b]
+			true [
+				if all [word? a/symbol compound? a][
+					a: remake-derivative a
+				]
+				if all [word? b/symbol compound? b][
+					b: remake-derivative b
+				]
+				;foreach d common [
+				;	probe reduce [a/symbol unit-of d a b/symbol unit-of d b]
+				;	if (ua: unit-of d a) <> (ub: unit-of d b) [
+				;		i: index? find dims d
+				;		i: i / 2 + 1
+				;		either b/dimension/:i > 0 [
+				;			
+				;		][
+				;			
+				;		]
+				;	]
+				;]
+				re-dimension2 a b
+			]
+		]
+	]
+	
+	re-dimension2: function [a b][
+		triples: collect [
+			foreach e2 flatten b/parts [
+				foreach e1 flatten a/parts [
+					if all [
+						not equal? e1 e2 
+						dimensions/:e1 *=* dimensions/:e2
 					][
-						sym: first triples
-						to-unit :sym b
+						keep e1 keep e2 
+						keep any [
+							scales/:e2/:e1 
+							resolve e2 e1
+						]
 					]
 				]
+			]
+		]
+		either empty? triples [
+			b
+		][
+			parts: copy/deep b/parts
+			either block? frst: first parts [
+				val0: val: b/amount
+				foreach [e1 e2 v] triples [
+					if found: find frst e2 [
+						change found e1
+						val: val *' either integer? i: found/2 [
+							v **' i
+						][	v]
+					]
+				]
+				if scnd: second parts [
+					val: 1.0 *' val
+					foreach [e1 e2 v] triples [
+						if found: find scnd e2 [
+							change found e1
+							val: val |' either integer? i: found/2 [
+								v **' i
+							][	v]
+						]
+					]
+				]
+				out: build-unit parts val
+				if b/vector [out/vector: (copy b/vector) * val / val0]
+				out
+			][
+				sym: first triples
+				to-unit :sym b
 			]
 		]
 	]

@@ -32,13 +32,13 @@ dims: reduce [                                                ;standard unit
 	'velocity      make vector! [0  0  1 -1  0  0  0  0  0  0] ;m/s
 	'acceleration  make vector! [0  0  1 -2  0  0  0  0  0  0] ;m/s2
 	'bitrate       make vector! [0  0  0 -1  0  0  0  0  0  1] ;bit/s
-	'force         make vector! [0  1  1 -2  0  0  0  0  0  0] ;N    newton
+	'force         make vector! [0  1  1 -2  0  0  0  0  0  0] ;N    newton kg*m/s2
 	'pressure      make vector! [0  1 -1 -2  0  0  0  0  0  0] ;Pa   pascal N/m2, kg/m*s2
-	'momentum      make vector! [0  1  1 -1  0  0  0  0  0  0]
+	'momentum      make vector! [0  1  1 -1  0  0  0  0  0  0] ;kg*m/s
 	'energy        make vector! [0  1  2 -2  0  0  0  0  0  0] ;J    joule
 	'power         make vector! [0  1  2 -3  0  0  0  0  0  0] ;W    watt
 	'density       make vector! [0  1 -3  0  0  0  0  0  0  0] ;kg/m3
-	'vorticity     make vector! [1  0  0 -1  0  0  0  0  0  0] ;rad/s
+	'angular-speed make vector! [1  0  0 -1  0  0  0  0  0  0] ;rad/s  (vorticity)
 	
 	'charge        make vector! [0  0  0  1  1  0  0  0  0  0] ;C    coulomb  A*s
 ]
