@@ -241,8 +241,11 @@ units [
 ```
 
 21-May-2020
+
 Added downloading currency rates by @rebolek (code in %currency-rates.red).
+
 Initially for USD only, e.g.
+
 ```
 >> set-scales/dim make-rates-table select get-rates 'rates dims/currency
 >> probe scales/USD
