@@ -1,9 +1,10 @@
 Red [
 	Description: "Toy system of dimensional quantities"
 	Date: 18-Apr-2020
-	Last: 30-Apr-2020
+	Last: 26-May-2020
 	Author: "Toomas Vooglaid"
 ]
+;Seems to work with fast-lexer
 
 digit: charset "0123456789"
 sci: [#"e" opt #"-" some digit]
@@ -42,16 +43,16 @@ system/lexer/pre-load: function [src len /local n u out][
 uctx: context append compose [
 	;=== local ops ====
 	*=*:  :system/words/=
-	*<*:  :system/words/<
-	*>*:  :system/words/>
-	*<=*: :system/words/<=
-	*>=*: :system/words/>=
+	*lt*:  :system/words/<
+	*gt*:  :system/words/>
+	;*<=*: :system/words/<=
+	;*>=*: :system/words/>=
 	;<> Not used (i.e. long form only)
-	+':   :system/words/+
-	-':   :system/words/-
-	*':   :system/words/*
-	|':   get first find words-of system/words '/
-	**':  :system/words/**
+	+*:   :system/words/+
+	-*:   :system/words/-
+	*_:   :system/words/*
+	|*:   get first find words-of system/words '/
+	**_:  :system/words/**
 	
 	;=== ops to use in DSL ===
 	=:  make op! func [a b][either comparable? a b [equal? a/as b/symbol b/amount][equal? a b]]
@@ -77,10 +78,10 @@ uctx: context append compose [
 				b'/vector: vec
 				if b'/type <> 'angle [b'/amount: magnitude? vec]
 			][
-				b'/amount: a/amount +' b'/amount
+				b'/amount: a/amount +* b'/amount
 			]
 			b'
-		][a +' b]
+		][a +* b]
 	]
 	-: make op! func [a b][
 		either comparable? a b [
@@ -98,10 +99,10 @@ uctx: context append compose [
 				b'/vector: vec
 				if b'/type <> 'angle [b'/amount: magnitude? vec]
 			][
-				b'/amount: a/amount -' b'/amount
+				b'/amount: a/amount -* b'/amount
 			]
 			b'
-		][a -' b]
+		][a -* b]
 	]
 
 	*: make op! function [a b][
@@ -134,7 +135,7 @@ uctx: context append compose [
 				]
 			]
 			all [number? a quantity? b] [
-				c: make b compose [amount: (b/amount *' a)]
+				c: make b compose [amount: (b/amount *_ a)]
 				if c/vector [
 					switch/default c/type [
 						angle [c/vector: make-projection c/amount c/symbol]
@@ -145,7 +146,7 @@ uctx: context append compose [
 				c
 			]
 			all [number? b quantity? a] [
-				c: make a compose [amount: (a/amount *' b)]
+				c: make a compose [amount: (a/amount *_ b)]
 				if c/vector [
 					switch/default c/type [
 						angle [c/vector: make-projection c/amount c/symbol]
@@ -172,21 +173,21 @@ uctx: context append compose [
 					true [relate a b '*]
 				]
 			]
-			true [a *' b]
+			true [a *_ b]
 		]
 	]
 	/: make op! func [a b][
 		case [
 			all [number? a quantity? b] [
-				amount: b/amount *' 1.0 |' a
+				amount: b/amount *_ 1.0 |* a
 				make b compose [amount: (amount)]
 			]
 			all [number? b quantity? a] [
-				amount: a/amount *' 1.0 |' b
+				amount: a/amount *_ 1.0 |* b
 				make a compose [amount: (amount)]
 			]
 			quantities? a b [relate a b '/]
-			true [a |' b]
+			true [a |* b]
 		]
 	]
 	**: make op! function [a b][
@@ -199,8 +200,8 @@ uctx: context append compose [
 				make a [vector: v]
 			]
 			all [quantity? a number? b] [
-				amount: a/amount **' b
-				dimension: b *' copy a/dimension
+				amount: a/amount **_ b
+				dimension: b *_ copy a/dimension
 				sym: make-symbol flatten a/parts dimension
 				either word? sym [
 					basic :sym amount
@@ -208,7 +209,7 @@ uctx: context append compose [
 					derive :sym amount
 				]
 			]
-			true [a **' b]
+			true [a **_ b]
 		]
 	]
 	relate: function [a b op][
@@ -216,19 +217,19 @@ uctx: context append compose [
 		vec: none
 		switch op [
 			* [
-				dimension: a/dimension +' b/dimension
+				dimension: a/dimension +* b/dimension
 				case [
 					all [a/vector b/vector][
 						rise-error ["Vectors multiplication is not implemented!"]
 					]
 					a/vector [vec: a/vector * b/amount amount: b/amount]
 					b/vector [vec: b/vector * a/amount amount: a/amount]
-					true [amount: a/amount *' b'/amount]
+					true [amount: a/amount *_ b'/amount]
 				]
 			]
 			/ [	
-				amount: divide a/amount *' 1.0 b'/amount
-				dimension: a/dimension -' b/dimension
+				amount: divide a/amount *_ 1.0 b'/amount
+				dimension: a/dimension -* b/dimension
 			]
 		]
 		sym: make-symbol unique append flatten a/parts flatten b'/parts dimension
@@ -328,10 +329,10 @@ uctx: context append compose [
 				if obj/vector [amount: obj/amount]
 				do replace/deep copy obj/scale/:sym '_ obj/amount
 			]
-			true [obj/amount *' sc: obj/scale/:sym]
+			true [obj/amount *_ sc: obj/scale/:sym]
 		]
 		if obj/vector [
-			if amount [sc: val / amount]
+			if amount [sc: to-integer val / amount]
 			obj/vector * sc
 		]
 		val
@@ -341,17 +342,17 @@ uctx: context append compose [
 	
 	resolve2: function [sym1 sym2 /with value /num n][
 		n: any [n 1]
-		if n *>* 20 [return false]
+		if n *gt* 20 [return false]
 		value: any [value 1]
 		either val: select scales/:sym1 sym2 [
-			return val *' value
+			return val *_ value
 		][
 			case [
 				string? sym1 [
 					obj1: derive :sym1 1
 					obj2: either string? sym2 [derive :sym2 1][basic :sym2 1]
 					obj: re-dimension obj2 obj1
-					return obj/amount *' value
+					return obj/amount *_ value
 				]
 				true [
 					append seen sym1
@@ -359,7 +360,7 @@ uctx: context append compose [
 						if not find seen sym [
 							vals: scales/:sym
 							if v: select vals sym2 [
-								return v *' val *' value
+								return v *_ val *_ value
 							][
 								append seen sym
 							]
@@ -369,7 +370,7 @@ uctx: context append compose [
 						vals: scales/:sym 
 						foreach [s v] vals [
 							if not find seen s [
-								return resolve2/with/num s sym2 v *' val *' value n +' 1
+								return resolve2/with/num s sym2 v *_ val *_ value n +* 1
 							]
 						]
 					]
@@ -388,11 +389,11 @@ uctx: context append compose [
 					if not scales/:sym1 [put scales sym1 make map! copy []]
 					put scales/:sym1 sym2 val 
 					if not scales/:sym2 [put scales sym2 make map! copy []]
-					put scales/:sym2 sym1 1.0 |' val 
+					put scales/:sym2 sym1 1.0 |* val 
 				]
 				val: resolve2 sym2 sym1 [ ;..and then the way around
 					if not scales/:sym1 [put scales sym1 make map! copy []]
-					put scales/:sym1 sym2 1.0 |' val
+					put scales/:sym1 sym2 1.0 |* val
 					if not scales/:sym2 [put scales sym2 make map! copy []]
 					put scales/:sym2 sym1 val
 				]
@@ -406,9 +407,9 @@ uctx: context append compose [
 		unless only [put scales/:sym1 sym2 val]
 		if not paren? val [
 			either scale: select scales sym2 [
-				put scale sym1 1.0 |' val
+				put scale sym1 1.0 |* val
 			][
-				put scales sym2 make map! reduce [sym1 1.0 |' val]
+				put scales sym2 make map! reduce [sym1 1.0 |* val]
 				put dimensions sym2 dim
 			]
 		]
@@ -520,9 +521,9 @@ uctx: context append compose [
 		positive: first parts
 		either block? positive [
 			forall positive [
-				dim: dim +' either integer? i: positive/2 [
+				dim: dim +* either integer? i: positive/2 [
 					positive: next positive
-					i *' copy dimensions/(positive/-1)
+					i *_ copy dimensions/(positive/-1)
 				][
 					dimensions/(positive/1)
 				]
@@ -532,9 +533,9 @@ uctx: context append compose [
 		]
 		if negative: second parts [
 			forall negative [
-				dim: dim -' either integer? i: negative/2 [
+				dim: dim -* either integer? i: negative/2 [
 					negative: next negative
-					i *' copy dimensions/(negative/-1)
+					i *_ copy dimensions/(negative/-1)
 				][
 					dimensions/(negative/1)
 				]
@@ -545,7 +546,7 @@ uctx: context append compose [
 
 	make-projection: function [ang sym][
 		switch sym [
-			rad  [x: cos 1.0 *' ang y: sin 1.0 *' ang]
+			rad  [x: cos 1.0 *_ ang y: sin 1.0 *_ ang]
 			deg  [x: cosine ang y: sine ang]
 			turn [x: cos a: 2 * pi * ang y: sin a]
 		]
@@ -554,8 +555,8 @@ uctx: context append compose [
 	]
 
 	make-vector: func [vec][
-		forall vec [vec/1: 1.0 *' vec/1] 
-		append/dup vec 0.0 4 -' length? vec
+		forall vec [vec/1: 1.0 *_ vec/1] 
+		append/dup vec 0.0 4 -* length? vec
 		make vector! vec
 	]
 
@@ -687,7 +688,7 @@ uctx: context append compose [
 				;	probe reduce [a/symbol unit-of d a b/symbol unit-of d b]
 				;	if (ua: unit-of d a) <> (ub: unit-of d b) [
 				;		i: index? find dims d
-				;		i: i / 2 + 1
+				;		i: (to-integer i / 2) + 1
 				;		either b/dimension/:i > 0 [
 				;			
 				;		][
@@ -699,7 +700,7 @@ uctx: context append compose [
 			]
 		]
 	]
-	
+
 	re-dimension2: function [a b][
 		triples: collect [
 			foreach e2 flatten b/parts [
@@ -726,18 +727,18 @@ uctx: context append compose [
 				foreach [e1 e2 v] triples [
 					if found: find frst e2 [
 						change found e1
-						val: val *' either integer? i: found/2 [
-							v **' i
+						val: val *_ either integer? i: found/2 [
+							v **_ i
 						][	v]
 					]
 				]
 				if scnd: second parts [
-					val: 1.0 *' val
+					val: 1.0 *_ val
 					foreach [e1 e2 v] triples [
 						if found: find scnd e2 [
 							change found e1
-							val: val |' either integer? i: found/2 [
-								v **' i
+							val: val |* either integer? i: found/2 [
+								v **_ i
 							][	v]
 						]
 					]
@@ -783,19 +784,19 @@ uctx: context append compose [
 		repeat d length? dim [
 			case [
 				;d *=* 1 []
-				dim/:d *>* 0 [
+				dim/:d *gt* 0 [
 					foreach u units [
-						if dimensions/:u *=* dims/(2 *' d) [
+						if dimensions/:u *=* dims/(2 *_ d) [
 							append frst u
-							if (i: dim/:d) *>* 1 [append frst i]
+							if (i: dim/:d) *gt* 1 [append frst i]
 						]
 					]
 				]
-				dim/:d *<* 0 [
+				dim/:d *lt* 0 [
 					foreach u units [
-						if dimensions/:u *=* dims/(2 *' d) [
+						if dimensions/:u *=* dims/(2 *_ d) [
 							append scnd u
-							if (i: dim/:d) *<* -1 [append scnd absolute i]
+							if (i: dim/:d) *lt* -1 [append scnd absolute i]
 						]
 					]
 				]
@@ -974,7 +975,7 @@ uctx: context append compose [
 		]
 		either any [number? angle is-angle? angle] [
 			ang: either number? angle [1.0 * angle][as-unit deg angle]
-			v: make-projection ang +' angle?/precise quantity 'deg
+			v: make-projection ang +* angle?/precise quantity 'deg
 			v * cosine elevation? quantity
 			either any [is-angle? quantity only] [
 				quantity/vector/2: v/2
@@ -1045,7 +1046,7 @@ uctx: context append compose [
 		"Set scales for given units"
 		specs [block!] "Pairs of symbol and map of comparable units"
 		/dim 
-			d [vector!] "Vector of dimension powers [vec M L T I Θ N J $ B °]"
+			d [vector!] "Vector of dimension powers [vec M L T I Θ N J S B °]"
 		/only "Limit scales to given specs"
 		/local sym spec
 	][
@@ -1061,5 +1062,4 @@ uctx: context append compose [
 
 	set 'units func [Units-DSL][do bind Units-DSL self]
 ]
-
 ()

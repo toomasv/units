@@ -67,7 +67,7 @@ set-scales/dim [
 	m:      #(mm: 1000 cm: 100 dm: 10 km: .001);meter
 	km:     #(mi: 0.621371192);1.609344)
 	;internamtional
-	p:      #(mm: (127 / 360 * _))  ;point
+	p:      #(mm: ((to-integer 127 / 360) * _))  ;point
 	pc:     #(p: 12)                ;pica
 	;imperial
 	in:     #(th: 1000 pica: 6);
