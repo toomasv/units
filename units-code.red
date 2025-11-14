@@ -1,7 +1,7 @@
 Red [
 	Description: "Toy system of dimensional quantities"
 	Date: 18-Apr-2020
-	Last: 26-May-2020
+	Last: 14-Nov-2025
 	Author: "Toomas Vooglaid"
 ]
 ;Seems to work with fast-lexer
@@ -55,7 +55,7 @@ uctx: context append compose [
 	**_:  :system/words/**
 	
 	;=== ops to use in DSL ===
-	=:  make op! func [a b][either comparable? a b [equal? a/as b/symbol b/amount][equal? a b]]
+	set '=  make op! func [a b][either comparable? a b [equal? a/as b/symbol b/amount][equal? a b]]
 	(to set-word! '<) make op! func [a b][either comparable? a b [lesser? a/as b/symbol b/amount][lesser? a b]]
 	>:  make op! func [a b][either comparable? a b [greater? a/as b/symbol b/amount][greater? a b]]
 	<=: make op! func [a b][either comparable? a b [lesser-or-equal? a/as b/symbol b/amount][lesser-or-equal? a b]]
@@ -263,7 +263,7 @@ uctx: context append compose [
 		type: none
 		symbol: none 
 		amount: 1 
-		scale: is [select scales symbol] 
+		system/words/relate scale: [select scales symbol] 
 		parts: none
 		dimension: none
 		vector: none
@@ -668,8 +668,10 @@ uctx: context append compose [
 	
 	re-dimension: function [
 		"Redimension b in units of a (if any)"
-		a [object!] b [object!]
-	][
+		a [object! block!] b [object! block!]
+	][;probe reduce [a b]
+		;if block? :a [a: object a]
+		;if block? :b [b: object b]
 		common: common-dims a b
 		case [
 			any [empty? common a/symbol = b/symbol] [copy/deep b]
@@ -762,7 +764,7 @@ uctx: context append compose [
 	]
 
 	build-symbol: function [parts][
-		sym: clear "" part: w: none
+		sym: clear [] part: w: none
 		bind part-rule :build-symbol ; to bind `part`-s and `w`-s
 		parse parts [
 			collect into sym [
@@ -775,7 +777,7 @@ uctx: context append compose [
 				]
 			]
 		]
-		sym
+		rejoin sym
 	]
 
 	make-symbol: function [units dim][
@@ -828,6 +830,7 @@ uctx: context append compose [
 	scale?:  func [obj][obj/scale]
 	dim?:    func [obj][obj/dimension]
 	vec?:    function [obj /round to /precise][
+		if not obj/vector [return none]
 		either precise [obj/vector][
 			vec: copy obj/vector
 			forall vec [
@@ -841,7 +844,7 @@ uctx: context append compose [
 				i [arctangent2 obj/vector/2 obj/vector/1]
 				j [arctangent2 obj/vector/3 obj/vector/1]
 				k [arctangent2 obj/vector/4 obj/vector/1]
-				#[none][arctangent2 obj/vector/3 obj/vector/2]
+				#(none)[arctangent2 obj/vector/3 obj/vector/2]
 			][
 				rise-error ["Argument to `angle?/dim` (" d ") not reckognized!"]
 			]
