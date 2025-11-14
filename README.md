@@ -249,7 +249,7 @@ Initially for USD only, e.g.
 ```
 >> set-scales/dim make-rates-table select get-rates 'rates dims/currency
 >> probe scales/USD
-#(
+#[
     CAD: 0.7179857058553538
     EUR: 0.8992805755395683
     HKD: 0.12902085542594555
