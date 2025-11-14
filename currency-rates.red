@@ -6,23 +6,23 @@ context [
 
 api-key: make map! either exists? %api-key.red [load %api-key.red][copy []]
 
-base-url: #(
+base-url: #[
 	fixer.io:				http://data.fixer.io/api/
 	openexchangerates.org:	https://openexchangerates.org/api/
 	exchangeratesapi.io:	https://api.exchangeratesapi.io/
-)
+]
 
-cache: #(
+cache: #[
 	fixer.io:				%rates-fixer.red
 	openexchangerates.org:	%rates-opexr.red
 	exchangeratesapi.io:	%rates-exraa.red
-)
+]
 
-latest: #(
+latest: #[
 	fixer.io:				[%latest?access_key= api-key/:server]
 	openexchangerates.org:	[%latest.json?app_id= api-key/:server]
 	exchangeratesapi.io:	[%latest]
-)
+]
 
 rate-data: none
 
@@ -62,10 +62,12 @@ set 'get-rates func [
 	all [
 		exists? cache/:server
 		not force
+		probe cache/:server
 		return load cache/:server
 	]
 ; -- load current rates
 	link: append copy base-url/:server latest/:server
+	probe 2
 	data: load-json read link
 	data/base: to word! data/base
 	save cache/:server data
